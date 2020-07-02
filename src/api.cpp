@@ -64,8 +64,8 @@ void init_webserver() {
     server.on("/", handleHome);
     server.on("/config", handleConfig);
     // server.on("/api", handleAPICall);
-    server.on("/api/network", HTTP_POST, handleNetworkConfig);
-    server.on("/api/restart", handleRestart);
+    server.on("/api/network", HTTP_PUT, handleNetworkConfig);
+    server.on("/api/restart", HTTP_POST, handleRestart);
     server.on("/api/state", HTTP_PUT, handleSetState);
 
     server.onNotFound(handleNotFound);
