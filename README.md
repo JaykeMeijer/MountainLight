@@ -45,7 +45,7 @@ The following API calls are currently supported:
 - Add captive portal in WiFi mode:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
-- Add mDNS name as mountainlight.local or whatever when on wifi
+- Add mDNS name as mountainlight.local or whatever when on wifi (https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/mdns.html)
 
 ## Programs and functionality
 
