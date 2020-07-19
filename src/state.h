@@ -7,6 +7,7 @@ extern int active_program;
 
 
 void load_state();
-void set_state(int new_program);
+int read_program();
+void set_program(int new_program);
 
 #endif

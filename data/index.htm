@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title>MountainLight</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+
+    <body>
+        <h1>Welcome to MountainLight</h1>
+        
+        <p><button onclick="setProgram(1)">Program 1</button></p>
+        <p><button onclick="setProgram(2)">Program 2</button></p>
+        
+        <a href="/config">Config</a>
+    </body>
+    
+    <script>
+        function setProgram(i) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/state", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("program=" + i);
+        }
+    </script>
+</html>

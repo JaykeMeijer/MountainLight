@@ -15,6 +15,10 @@ not available, an access point is created so these can be configured.
 System config is stored on EEPROM. Max stored SSID size is 32 chars, same for
 password.
 
+# Networking
+
+mDNS is on, the device is known as `mountainlight.local`. 
+
 # HTML Endpoints
 
 - `/`: Home
@@ -36,16 +40,13 @@ The following API calls are currently supported:
 - Add SPIFFS & FileBrowser
 - Create and add HTML pages:
   - home (program, color, effect selection)
-  - config (WiFi settings)
 - Create and add API functionality:
-  - Get available network list
   - Get available programs, colors, effects
   - Set colors, effects
 - Add OTA updates
 - Add captive portal in WiFi mode:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
-- Add mDNS name as mountainlight.local or whatever when on wifi (https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/mdns.html)
 
 ## Programs and functionality
 

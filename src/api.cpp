@@ -1,6 +1,7 @@
 #include "api.h"
 
-WebServer server(80);
+AsyncWebServer server(80);
+bool as_ap = false;
 
 void init_api(void* parameter) {
     delay(100);
@@ -10,6 +11,9 @@ void init_api(void* parameter) {
 
     init_connection(eeprom_success);
     init_webserver();
+    init_mdns();
+
+    init_spiffs();
 
     serve();
 }
@@ -23,6 +27,9 @@ void init_connection(bool eeprom_loaded) {
     if (eeprom_loaded) {
         String ssid = eeprom_readString(EEPROM_SSID);
         String password = eeprom_readString(EEPROM_PASS);
+
+        Serial.print("Trying to connect to ");
+        Serial.println(ssid);
 
         WiFi.begin(ssid.c_str(), password.c_str());
         int attempt = 0;
@@ -48,7 +55,9 @@ void init_connection(bool eeprom_loaded) {
     // If failed to connect, start up access point instead.
     if(!connected) {
         Serial.println("Configuring access point...");
+        WiFi.mode(WIFI_MODE_APSTA);
         WiFi.softAP(AP_SSID, AP_PASS);
+        as_ap = true;
 
         IPAddress myIP = WiFi.softAPIP();
         Serial.print("AP IP address: ");
@@ -61,59 +70,116 @@ void init_connection(bool eeprom_loaded) {
 
 void init_webserver() {
     Serial.println("Initializing webserver");
-    server.on("/", handleHome);
-    server.on("/config", handleConfig);
-    // server.on("/api", handleAPICall);
+    server.serveStatic("/", SPIFFS, "/index.htm");
+    server.serveStatic("/config", SPIFFS, "/config.htm");
+    server.on("/api/network", HTTP_GET, handleGetNetworkConfig);
     server.on("/api/network", HTTP_PUT, handleNetworkConfig);
     server.on("/api/restart", HTTP_POST, handleRestart);
+    server.on("/api/state", HTTP_GET, handleGetState);
     server.on("/api/state", HTTP_PUT, handleSetState);
 
-    server.onNotFound(handleNotFound);
+    // FS Browser
+    server.on("/list", HTTP_GET, handleFileList);
+    server.serveStatic("/edit", SPIFFS, "/edit.htm");
+    server.on("/edit", HTTP_PUT, handleFileCreate);
+    server.on("/edit", HTTP_DELETE, handleFileDelete);
+    server.on("/edit", HTTP_POST, [](AsyncWebServerRequest *request){},
+            [](AsyncWebServerRequest *request, const String& filename,
+                size_t index, uint8_t *data, size_t len, bool final) {
+        handleFileUpload(request, filename, index, data, len, final);
+    });
+
+    server.onNotFound([](AsyncWebServerRequest *request) {
+        /* Try if there is a file with that name first */
+        if (!handleFileRead(request->url(), request)) {
+            handleNotFound(request);
+        }
+    });
     server.begin();
     Serial.println("Webserver is live");
 }
 
+void init_mdns() {
+    //initialize mDNS service
+    esp_err_t err = mdns_init();
+    if (err) {
+        printf("MDNS Init failed: %d\n", err);
+        return;
+    }
+
+    //set hostname
+    mdns_hostname_set(MDNS_NAME);
+    //set default instance
+    mdns_instance_name_set(MDNS_DESC);
+
+    mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
+    mdns_service_instance_name_set("_http", "_tcp", MDNS_DESC);
+}
+
 void serve() {
     while(1) {
-        server.handleClient();
         delay(50);
     }
 }
 
-void handleHome() {
-    server.send(200, "text/html", "<html><head><title>MountainLight</title></head><body><a href=\"/config\">Config</a></body></html>");
+void handleGetState(AsyncWebServerRequest *request) {
+    String output = "{\n";
+    output += "\t\"program\": " + String(read_program()) + "\n";
+    output += "}";
+
+    request->send(200, "application/json", output);
 }
 
-void handleConfig() {
-    server.send(200, "text/html", "<html><head><title>MountainLight</title></head><body>hi</body></html>");
-}
-
-void handleSetState() {
-    if (server.hasArg("program")) {
-        set_state(server.arg("program").toInt());
+void handleSetState(AsyncWebServerRequest *request) {
+    if (request->hasParam("program", true)) {
+        set_program(request->getParam("program", true)->value().toInt());
     }
-    server.send(200);
+    request->send(200);
 }
 
-void handleNotFound() {
-    server.send(404, "text/html", "<html><head><title>MountainLight</title></head><body><h1>Oops.. That does not exist</h1><a href=\"/\">Back home</a></body></html>");
+void handleNotFound(AsyncWebServerRequest *request) {
+    request->send(404, "text/html", "<html><head><title>MountainLight</title></head><body><h1>Oops.. That does not exist</h1><a href=\"/\">Back home</a></body></html>");
 }
 
-void handleNetworkConfig() {
-    if (server.hasArg("ssid")) {
-        String ssid = server.arg("ssid");
+void handleGetNetworkConfig(AsyncWebServerRequest *request) {
+    String output = "{\n";
+    output += "\t\"is_ap\": " + String(as_ap ? "true" : "false") + ",\n";
+    output += "\t\"stored\": \"" + eeprom_readString(EEPROM_SSID) + "\",\n";
+    output += "\t\"connected\": " + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",\n";
+    output += "\t\"networks\": [";
+
+    int numberOfNetworks = WiFi.scanNetworks();
+    for (int i = 0; i < numberOfNetworks; i++) {
+        output += "\t\t{\n";
+        output += "\t\t\t\"ssid\": \"" + WiFi.SSID(i) + "\",\n";
+        output += "\t\t\t\"rssi\": " + String(WiFi.RSSI(i)) + "\n";
+        output += "\t\t}";
+        if (i < numberOfNetworks - 1) {
+            output += ',';
+        }
+        output += '\n';
+    }
+
+    output += "\t]\n}";
+
+    request->send(200, "application/json", output);
+}
+
+void handleNetworkConfig(AsyncWebServerRequest *request) {
+    if (request->hasParam("ssid", true)) {
+        String ssid = request->getParam("ssid", true)->value();
         eeprom_writeString(EEPROM_SSID, ssid);
     }
 
-    if (server.hasArg("pass")) {
-        String pass = server.arg("pass");
+    if (request->hasParam("pass", true)) {
+        String pass = request->getParam("pass", true)->value();
         eeprom_writeString(EEPROM_PASS, pass);
     }
 
-    server.send(200);
+    request->send(200);
 }
 
-void handleRestart() {
-    server.send(200);
+void handleRestart(AsyncWebServerRequest *request) {
+    request->send(200);
     ESP.restart();
 }

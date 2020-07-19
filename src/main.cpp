@@ -7,7 +7,8 @@ void startup() {
     Serial.begin(9600);
 
     for(int i = 0; i < TOTAL_PIXELS; i++) {
-        setPixelOverall(i, 127, 120, 85);
+        //setPixelOverall(i, 127, 120, 85);
+        setPixelOverall(i, 255, 255, 255);
         showStrips();
         delay(5);
     }

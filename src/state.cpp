@@ -8,7 +8,11 @@ void load_state() {
     Serial.println(active_program);
 }
 
-void set_state(int new_program) {
+int read_program() {
+    return eeprom_readInt(EEPROM_PRGM);
+}
+
+void set_program(int new_program) {
     active_program = new_program;
     eeprom_writeInt(EEPROM_PRGM, active_program);
     Serial.println("Written to EEPROM");

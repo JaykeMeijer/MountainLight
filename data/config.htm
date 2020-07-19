@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <title>MountainLight</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+
+    <body onload="onload()">
+        <small><a href="/">&lt; Back</a></small>
+        <h1>MountainLight Config</h1>
+
+        <p>
+            <span class="label">Currently stored WiFi network:</span> <span id="stored"></span>
+        </p>
+        <p>
+            <span class="label">Current state:</span> <span id="state"></span>
+        </p>
+        <p>
+            <span class="label">In access point mode:</span> <span id="ap"></span>
+        </p>
+        <p>
+            <span class="label">Available networks:</span> <table id="networks"></table>
+        </p>
+        
+        <button onclick="reboot()">Reboot device</button>
+        
+        <div id="popup">
+            <span class="label">Connecting to:</span> <span id="new_network"></span>
+            <p>
+              <span class="label">Enter Password:</span> <input id="pass" type="password"/>
+            </p>
+            <p>
+              <button onclick="upload()">Store</button>
+              <button onclick="cancel()">Cancel</button>
+            </p>
+        </div>
+        
+    </body>
+    <script>
+        function onload() {
+            var xhttp = new XMLHttpRequest(); 
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var json = JSON.parse(this.responseText);
+                    
+                    document.getElementById("stored").innerHTML = json["stored"];
+                    document.getElementById("state").innerHTML = json["connected"] ? "Connected" : "Disconnected";
+                    document.getElementById("ap").innerHTML = json["is_ap"] ? "Yes" : "No";
+                    
+                    var data = "<tr><th>SSID</th><th>Signal strength</th>";
+                    for (var i = 0; i < json["networks"].length; i++) {
+                        var nw = json["networks"][i];
+                        data += '<tr class="a" onclick=selectNetwork("' + nw["ssid"] + '");><td>' + nw["ssid"] + "</td><td>" + nw["rssi"] + "</td></tr>";
+                    }
+                    document.getElementById("networks").innerHTML = data;
+                }
+            };
+
+            xhttp.open("GET", "/api/network", true);
+            xhttp.send();
+        }
+        
+        function selectNetwork(ssid) {
+            document.getElementById("new_network").innerHTML = ssid;
+            document.getElementById("popup").style.display = "block";
+        }
+        
+        function upload() {
+            var ssid = document.getElementById("new_network").innerHTML;
+            var pass = document.getElementById("pass").value;
+            
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/network", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("ssid=" + ssid + "&pass=" + pass);
+
+            document.getElementById("popup").style.display = "none";
+            onload();
+        }
+        
+        function cancel() {
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("pass").value = "";
+        }
+        
+        function reboot() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/api/restart", true);
+            xhttp.send();
+        }
+    </script>
+</html>
