@@ -1,5 +1,7 @@
 #include <WiFi.h>
+#include <esp_task_wdt.h>
 #include <ESPAsyncWebServer.h>
+#include <DNSServer.h>
 #include <mdns.h>
 #include "state.h"
 #include "eeprom_func.h"
@@ -8,13 +10,16 @@
 #ifndef API_H
 #define API_H
 
-#define WIFI_ATTEMPTS 50
+#define WIFI_ATTEMPTS 20
 
 #define AP_SSID "MountainLightSetup"
 #define AP_PASS "mountain1"
 
 #define MDNS_NAME "mountainlight"
 #define MDNS_DESC "Mountain Light Control Interface"
+
+#define DNS_PORT 53
+
 
 void init_api(void* parameter);
 bool init_EEPROM();

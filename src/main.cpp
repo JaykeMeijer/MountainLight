@@ -18,6 +18,8 @@ void setup() {
     Serial.begin(9600);
     strands_init();
 
+    // Don't panic, kernel
+    // esp_task_wdt_init(1000, false);
     TaskHandle_t ControlTask;
 
     xTaskCreatePinnedToCore(

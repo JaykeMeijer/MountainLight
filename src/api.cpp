@@ -1,6 +1,7 @@
 #include "api.h"
 
 AsyncWebServer server(80);
+DNSServer dnsServer;
 bool as_ap = false;
 
 void init_api(void* parameter) {
@@ -17,7 +18,6 @@ void init_api(void* parameter) {
 
     serve();
 }
-
 
 void init_connection(bool eeprom_loaded) {
     // Start WiFi mode. First, check if password in storage
@@ -56,12 +56,17 @@ void init_connection(bool eeprom_loaded) {
     if(!connected) {
         Serial.println("Configuring access point...");
         WiFi.mode(WIFI_MODE_APSTA);
-        WiFi.softAP(AP_SSID, AP_PASS);
+
+        WiFi.softAP(AP_SSID);
         as_ap = true;
 
         IPAddress myIP = WiFi.softAPIP();
         Serial.print("AP IP address: ");
         Serial.println(myIP);
+
+        /* Setup the DNS server redirecting all the domains to the apIP */
+        dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+        dnsServer.start(DNS_PORT, "*", myIP);
     } else {
         Serial.print("Connected to existing WiFi at: ");
         Serial.println(WiFi.localIP());
@@ -70,7 +75,7 @@ void init_connection(bool eeprom_loaded) {
 
 void init_webserver() {
     Serial.println("Initializing webserver");
-    server.serveStatic("/", SPIFFS, "/index.htm");
+    server.serveStatic("/", SPIFFS, "/");
     server.serveStatic("/config", SPIFFS, "/config.htm");
     server.on("/api/network", HTTP_GET, handleGetNetworkConfig);
     server.on("/api/network", HTTP_PUT, handleNetworkConfig);
@@ -117,14 +122,24 @@ void init_mdns() {
 }
 
 void serve() {
-    while(1) {
-        delay(50);
+    // If running as AP, answer DNS requests. If outside of loop to limit
+    // branching statement to once instead of every loop
+    if (as_ap) {
+        while(1) {
+            dnsServer.processNextRequest();
+
+            delay(50);
+        }
+    } else {
+        while(1) {
+            delay(50);
+        }
     }
 }
 
 void handleGetState(AsyncWebServerRequest *request) {
-    String output = "{\n";
-    output += "\t\"program\": " + String(read_program()) + "\n";
+    String output = "{";
+    output += "\"program\": " + String(read_program()) + "\"";
     output += "}";
 
     request->send(200, "application/json", output);
@@ -138,29 +153,31 @@ void handleSetState(AsyncWebServerRequest *request) {
 }
 
 void handleNotFound(AsyncWebServerRequest *request) {
-    request->send(404, "text/html", "<html><head><title>MountainLight</title></head><body><h1>Oops.. That does not exist</h1><a href=\"/\">Back home</a></body></html>");
+    if (as_ap) {
+        request->redirect("/config");
+    } else {
+        request->send(404, "text/html", "<html><head><title>MountainLight</title></head><body><h1>Oops.. That does not exist</h1><a href=\"/\">Back home</a></body></html>");
+    }
 }
 
 void handleGetNetworkConfig(AsyncWebServerRequest *request) {
-    String output = "{\n";
-    output += "\t\"is_ap\": " + String(as_ap ? "true" : "false") + ",\n";
-    output += "\t\"stored\": \"" + eeprom_readString(EEPROM_SSID) + "\",\n";
-    output += "\t\"connected\": " + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",\n";
-    output += "\t\"networks\": [";
+    String output = "{";
+    output += "\"is_ap\": " + String(as_ap ? "true" : "false") + ",";
+    output += "\"stored\": \"" + eeprom_readString(EEPROM_SSID) + "\",";
+    output += "\"connected\": " + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",";
+    output += "\"networks\": [";
 
     int numberOfNetworks = WiFi.scanNetworks();
     for (int i = 0; i < numberOfNetworks; i++) {
-        output += "\t\t{\n";
-        output += "\t\t\t\"ssid\": \"" + WiFi.SSID(i) + "\",\n";
-        output += "\t\t\t\"rssi\": " + String(WiFi.RSSI(i)) + "\n";
-        output += "\t\t}";
+        output += "{\"ssid\": \"" + WiFi.SSID(i) + "\",";
+        output += "\"rssi\": " + String(WiFi.RSSI(i));
+        output += "}";
         if (i < numberOfNetworks - 1) {
             output += ',';
         }
-        output += '\n';
     }
 
-    output += "\t]\n}";
+    output += "]}";
 
     request->send(200, "application/json", output);
 }

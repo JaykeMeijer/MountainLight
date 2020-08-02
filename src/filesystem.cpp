@@ -47,29 +47,19 @@ void handleFileList(AsyncWebServerRequest *request) {
 }
 
 bool handleFileRead(String path, AsyncWebServerRequest *request) {
-    // server->send(200, "text/html", "<form method=\"post\" enctype=\"multipart/form-data\"><input type=\"file\" name=\"name\"><input class=\"button\" type=\"submit\" value=\"Upload\"></form>");
-    // return true;
-    if (path.endsWith("/")) {
-        path += "index.htm";
-    }
-
     String contentType = getContentType(path);
     String pathWithGz = path + ".gz";
     if (exists(pathWithGz) || exists(path)) {
         if (exists(pathWithGz)) {
             path += ".gz";
         }
-        // File file = SPIFFS.open(path, "r");
         Serial.println("File opened, streaming now");
-        // server->streamFile(file, contentType);
         request->send(SPIFFS, path, contentType);
 
         Serial.println("Streaming done, closing");
-        // file.close();
         Serial.println("Done streaming");
         return true;
     }
-    Serial.println("No file");
     return false;
 }
 

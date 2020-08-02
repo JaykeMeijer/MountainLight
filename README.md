@@ -37,7 +37,6 @@ The following API calls are currently supported:
 # TODO
 
 ## System
-- Add SPIFFS & FileBrowser
 - Create and add HTML pages:
   - home (program, color, effect selection)
 - Create and add API functionality:
@@ -47,6 +46,7 @@ The following API calls are currently supported:
 - Add captive portal in WiFi mode:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
+    NOTE: Currently build but sadly it's crashing the ESP, watchdog is triggered.
 
 ## Programs and functionality
 
