@@ -8,9 +8,11 @@
 /* CONFIGURATION        */
 /* ==================== */
 #define TOTAL_PIXELS 120
-#define STRANDS 1
+#define STRANDS 2
 #define POR1 14
-#define LEN1 120
+#define POR2 26
+#define LEN1 75
+#define LEN2 45
 /* ==================== */
 
 typedef struct {
@@ -31,7 +33,7 @@ void setStrip(CRGB *s, uint8_t r, uint8_t g, uint8_t b);
 void setPixel(CRGB *s, int pixel, uint8_t r, uint8_t g, uint8_t b);
 
 /* Set a specific pixel overall */
-void setPixelOverall(int pixel, uint8_t r, uint8_t g, uint8_t b);
+void setPixelLtR(int pixel, uint8_t r, uint8_t g, uint8_t b);
 
 /* Show all strips */
 void showStrips();

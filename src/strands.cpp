@@ -7,6 +7,7 @@
 /* CONFIGURATION        */
 /* ==================== */
 CRGB s1[LEN1];
+CRGB s2[LEN2];
 /* ==================== */
 
 
@@ -14,6 +15,7 @@ int strands_init() {
   // Initialize FastLED lib
 
   FastLED.addLeds<NEOPIXEL, POR1>(s1, LEN1);
+  FastLED.addLeds<NEOPIXEL, POR2>(s2, LEN2);
 
   // TODO create array of manually defined strands?
 
@@ -26,6 +28,7 @@ int strands_init() {
 /* Set an entire strand with one color */
 void setAll(uint8_t r, uint8_t g, uint8_t b) {
   setStrip(s1, r, g, b);
+  setStrip(s2, r, g, b);
 }
 
 /* Set an entire strip with one color */
@@ -42,9 +45,12 @@ void setPixel(CRGB *s, int pixel, uint8_t r, uint8_t g, uint8_t b) {
   s[pixel].setRGB(r, g, b);
 }
 
-void setPixelOverall(int pixel, uint8_t r, uint8_t g, uint8_t b) {
-  // TODO implement logic over strands
-  s1[pixel].setRGB(r, g, b);
+void setPixelLtR(int pixel, uint8_t r, uint8_t g, uint8_t b) {
+  if (pixel < 75) {
+    s1[LEN1 - 1 - pixel].setRGB(r, g, b);
+  } else {
+    s2[pixel - LEN1].setRGB(r, g, b);
+  }
 }
 
 /* Show all strips */
