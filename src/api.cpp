@@ -65,8 +65,8 @@ void init_connection(bool eeprom_loaded) {
         Serial.println(myIP);
 
         /* Setup the DNS server redirecting all the domains to the apIP */
-        dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-        dnsServer.start(DNS_PORT, "*", myIP);
+        // dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+        // dnsServer.start(DNS_PORT, "*", myIP);
     } else {
         Serial.print("Connected to existing WiFi at: ");
         Serial.println(WiFi.localIP());
@@ -126,7 +126,7 @@ void serve() {
     // branching statement to once instead of every loop
     if (as_ap) {
         while(1) {
-            dnsServer.processNextRequest();
+            // dnsServer.processNextRequest();
 
             delay(50);
         }
