@@ -30,8 +30,12 @@ The following API calls are currently supported:
 
 - `PUT /api/network`: Set network configuration. Supports form parameters
                       `ssid` and `pass`
-- `PUT /api/state`: Set desired program, color and effect. Currently only
-                    supports form parameter `program` (int).
+- `PUT /api/state`: Set desired program, color and effect. Currently
+                    supports form parameters `program` (int) and
+                    `brightness` (float).
+- `PUT /api/ota`: Start or stop OTA support. Supports form parameter
+                  `command` (str). Supported commands are `start` and
+                  `stop`.
 - `POST /api/restart`: Reboot device
 
 # TODO
@@ -42,7 +46,6 @@ The following API calls are currently supported:
 - Create and add API functionality:
   - Get available programs, colors, effects
   - Set colors, effects
-- Add OTA updates
 - Add captive portal in WiFi mode:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
@@ -56,5 +59,4 @@ The following API calls are currently supported:
     - Dynamic color programs (moving rainbow concepts)
     - Color effects: Apply color to colorless programs: static color, slowly changing color, etc
     - Brightness effects: Apply dynamice brightness effects to colorless & static color programs: pulse, slow left-right etc.
-    - Master Brightness
 - Create custom programs through web interface
