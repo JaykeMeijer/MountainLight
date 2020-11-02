@@ -2,6 +2,7 @@
     <head>
         <title>MountainLight</title>
         <link rel="stylesheet" type="text/css" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
 
     <body onload="onload()">
@@ -15,6 +16,9 @@
             <span class="label">Current state:</span> <span id="state"></span>
         </p>
         <p>
+            <span class="label">OTA state:</span> <span id="ota"></span>
+        </p>
+        <p>
             <span class="label">In access point mode:</span> <span id="ap"></span>
         </p>
         <p>
@@ -22,6 +26,9 @@
         </p>
         
         <button onclick="reboot()">Reboot device</button>
+
+        <button onclick="enable_ota()">Enable OTA</button>
+        <button onclick="disable_ota()">Disable OTA</button>
         
         <div id="popup">
             <span class="label">Connecting to:</span> <span id="new_network"></span>
@@ -44,6 +51,7 @@
                     
                     document.getElementById("stored").innerHTML = json["stored"];
                     document.getElementById("state").innerHTML = json["connected"] ? "Connected" : "Disconnected";
+                    document.getElementById("ota").innerHTML = json["ota_on"] ? "On" : "Off";
                     document.getElementById("ap").innerHTML = json["is_ap"] ? "Yes" : "No";
                     
                     var data = "<tr><th>SSID</th><th>Signal strength</th>";
@@ -87,5 +95,22 @@
             xhttp.open("POST", "/api/restart", true);
             xhttp.send();
         }
+        
+        function enable_ota() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/ota", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("command=start");
+            onload();
+        }
+        
+        function disable_ota() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/ota", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("command=stop");
+            onload();
+        }
+        
     </script>
 </html>

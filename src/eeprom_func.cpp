@@ -22,3 +22,12 @@ void eeprom_writeInt(int address, int input) {
     EEPROM.writeInt(address, input);
     EEPROM.commit();
 }
+
+float eeprom_readFloat(int address) {
+    return EEPROM.readFloat(address);
+}
+
+void eeprom_writeFloat(int address, float input) {
+    EEPROM.writeFloat(address, input);
+    EEPROM.commit();
+}

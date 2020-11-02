@@ -2,23 +2,66 @@
     <head>
         <title>MountainLight</title>
         <link rel="stylesheet" type="text/css" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
 
-    <body>
+    <body onload="onLoad()">
         <h1>Welcome to MountainLight</h1>
         
-        <p><button onclick="setProgram(1)">Program 1</button></p>
-        <p><button onclick="setProgram(2)">Program 2</button></p>
+        <p>
+            <label for="brightness">Brightness:</label>
+            <input type="range" id="brightness" name="brightness"
+                min="0" max="1" step="0.01"
+                onchange="changeBrightness()">
+            <span id="brightness_text"></span>
+        </p>
+        <p>
+            Predefined programs:
+            <button onclick="setProgram(1)">Program 1</button>
+            <button onclick="setProgram(2)">Program 2</button>
+        </p>
         
         <a href="/config">Config</a>
     </body>
     
     <script>
+        function onLoad() {
+            getState(function(state) {
+                console.log(state);
+                document.getElementById("brightness").value = state.brightness;
+                document.getElementById("brightness_text").innerHTML = Math.round(state.brightness * 100) + '%';
+            });
+        }
+
+        function changeBrightness() {
+            brightness = document.getElementById("brightness").value;
+            setBrightness(brightness);
+            document.getElementById("brightness_text").innerHTML = Math.round(brightness * 100) + '%';
+        }
+
+        function getState(callback) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (xhttp.readyState == 4 && xhttp.status == 200)
+                    callback(JSON.parse(xhttp.responseText));
+            }
+            xhttp.open("GET", "/api/state", true);
+            xhttp.send(null);
+        }
+
         function setProgram(i) {
             var xhttp = new XMLHttpRequest();
             xhttp.open("PUT", "/api/state", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("program=" + i);
         }
+
+        function setBrightness(i) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/state", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("brightness=" + i);
+        }
+
     </script>
 </html>

@@ -10,7 +10,7 @@ void startup() {
         //setPixelOverall(i, 127, 120, 85);
         setPixelLtR(i, 255, 255, 255);
         showStrips();
-        delay(5);
+        delay(10);
     }
 }
 

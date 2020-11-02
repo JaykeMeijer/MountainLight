@@ -4,6 +4,7 @@
 #define EEPROM_SSID 0
 #define EEPROM_PASS 32
 #define EEPROM_PRGM 64
+#define EEPROM_BRIGHT 68
 
 #ifndef EEPROM_FUNC_H
 #define EEPROM_FUNC_H
@@ -14,5 +15,8 @@ void eeprom_writeString(int address, String input);
 
 int eeprom_readInt(int address);
 void eeprom_writeInt(int address, int input);
+
+float eeprom_readFloat(int address);
+void eeprom_writeFloat(int address, float input);
 
 #endif

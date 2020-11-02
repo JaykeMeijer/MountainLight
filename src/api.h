@@ -3,6 +3,7 @@
 #include <ESPAsyncWebServer.h>
 #include <DNSServer.h>
 #include <mdns.h>
+#include <ArduinoOTA.h>
 #include "state.h"
 #include "eeprom_func.h"
 #include "filesystem.h"
@@ -26,13 +27,16 @@ bool init_EEPROM();
 void init_connection(bool eeprom_loaded);
 void init_webserver();
 void init_mdns();
+void init_ota();
 
 void serve();
+void handle_extra();
 void handleNotFound(AsyncWebServerRequest *request);
 void handleGetNetworkConfig(AsyncWebServerRequest *request);
 void handleNetworkConfig(AsyncWebServerRequest *request);
 void handleGetState(AsyncWebServerRequest *request);
 void handleSetState(AsyncWebServerRequest *request);
 void handleRestart(AsyncWebServerRequest *request);
+void handleOTA(AsyncWebServerRequest *request);
 
 #endif

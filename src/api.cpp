@@ -3,6 +3,7 @@
 AsyncWebServer server(80);
 DNSServer dnsServer;
 bool as_ap = false;
+bool ota = false;
 
 void init_api(void* parameter) {
     delay(100);
@@ -82,6 +83,7 @@ void init_webserver() {
     server.on("/api/restart", HTTP_POST, handleRestart);
     server.on("/api/state", HTTP_GET, handleGetState);
     server.on("/api/state", HTTP_PUT, handleSetState);
+    server.on("/api/ota", HTTP_PUT, handleOTA);
 
     // FS Browser
     server.on("/list", HTTP_GET, handleFileList);
@@ -121,25 +123,61 @@ void init_mdns() {
     mdns_service_instance_name_set("_http", "_tcp", MDNS_DESC);
 }
 
+void init_ota() {
+    ArduinoOTA.setHostname("MountainLight");
+    ArduinoOTA.onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      SPIFFS.end();
+      Serial.println("Start updating " + type);
+    }).onEnd([]() {
+      Serial.println("\nEnd");
+    }).onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    }).onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+
+  ArduinoOTA.begin();
+
+  Serial.println("OTA Ready");
+}
+
 void serve() {
     // If running as AP, answer DNS requests. If outside of loop to limit
     // branching statement to once instead of every loop
     if (as_ap) {
         while(1) {
             // dnsServer.processNextRequest();
-
-            delay(50);
+            handle_extra();
         }
     } else {
         while(1) {
-            delay(50);
+            handle_extra();
         }
     }
 }
 
+void handle_extra() {
+    if (ota) {
+        ArduinoOTA.handle();
+    }
+    delay(50);
+}
+
 void handleGetState(AsyncWebServerRequest *request) {
     String output = "{";
-    output += "\"program\": " + String(read_program()) + "\"";
+    output += "\"program\": " + String(read_program()) + ",";
+    output += "\"brightness\": " + String(read_brightness());
     output += "}";
 
     request->send(200, "application/json", output);
@@ -148,6 +186,9 @@ void handleGetState(AsyncWebServerRequest *request) {
 void handleSetState(AsyncWebServerRequest *request) {
     if (request->hasParam("program", true)) {
         set_program(request->getParam("program", true)->value().toInt());
+    }
+    if (request->hasParam("brightness", true)) {
+        set_brightness(request->getParam("brightness", true)->value().toFloat());
     }
     request->send(200);
 }
@@ -163,6 +204,7 @@ void handleNotFound(AsyncWebServerRequest *request) {
 void handleGetNetworkConfig(AsyncWebServerRequest *request) {
     String output = "{";
     output += "\"is_ap\": " + String(as_ap ? "true" : "false") + ",";
+    output += "\"ota_on\": " + String(ota ? "true" : "false") + ",";
     output += "\"stored\": \"" + eeprom_readString(EEPROM_SSID) + "\",";
     output += "\"connected\": " + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",";
     output += "\"networks\": [";
@@ -199,4 +241,28 @@ void handleNetworkConfig(AsyncWebServerRequest *request) {
 void handleRestart(AsyncWebServerRequest *request) {
     request->send(200);
     ESP.restart();
+}
+
+void handleOTA(AsyncWebServerRequest *request) {
+    if (request->hasParam("command", true)) {
+        String command = request->getParam("command", true)->value();
+        if (command.equals("start")) {
+            if (!ota) {
+                init_ota();
+                ota = true;
+            }
+            request->send(200);
+        } else if (command.equals("stop")){
+            if (ota) {
+                ArduinoOTA.end();
+                ota = false;
+                Serial.println("OTA Stopped");
+            }
+            request->send(200);
+        } else {
+            request->send(400);
+        }
+    } else {
+        request->send(400);
+    }
 }
