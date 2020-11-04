@@ -1,4 +1,5 @@
 .pio/*
 .vscode/*
 platformio.ini
+extra_script.py
 workspace.code-workspace

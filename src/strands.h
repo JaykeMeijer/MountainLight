@@ -1,7 +1,5 @@
 #include <WString.h>
-#define FASTLED_ALLOW_INTERRUPTS 0
-/* TODO check this one - may be the solution to wifi flicker */
-#define FASTLED_INTERRUPT_RETRY_COUNT = 0
+#define FASTLED_ESP32_I2S true
 #include "FastLED.h"
 
 #ifndef STRANDS_H
