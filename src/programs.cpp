@@ -84,9 +84,3 @@ void recalcRainbowRev(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t stepSize) {
     *r = *r < stepSize ? 0 : *r - stepSize;
   }
 }
-
-
-void setBlackout() {
-    setAll(0, 0, 0);
-    showStrips();
-}

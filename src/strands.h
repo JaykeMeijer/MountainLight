@@ -25,16 +25,19 @@ typedef struct {
 int strands_init();
 
 /* Set an entire strand with one color */
-void setAll(uint8_t r, uint8_t g, uint8_t b);
+void setAllColor(uint8_t r, uint8_t g, uint8_t b);
+void setAllBrightness(float brightness);
 
 /* Set an entire strip with one color */
-void setStrip(CRGB *s, int len, uint8_t r, uint8_t g, uint8_t b);
+void setStripColor(CRGB *s, int len, uint8_t r, uint8_t g, uint8_t b);
+void setStripBrightness(float *b, int len, float brightness);
 
 /* Set a specific pixel on a specific strand */
-void setPixel(CRGB *s, int pixel, uint8_t r, uint8_t g, uint8_t b);
+void setPixelColor(CRGB *s, int pixel, uint8_t r, uint8_t g, uint8_t b);
 
 /* Set a specific pixel overall */
-void setPixelLtR(int pixel, uint8_t r, uint8_t g, uint8_t b);
+void setPixelColorLtR(int pixel, uint8_t r, uint8_t g, uint8_t b);
+void setPixelBrightnessLtR(int pixel, float brightness);
 
 /* Show all strips */
 void showStrips();

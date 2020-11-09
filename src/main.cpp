@@ -3,12 +3,14 @@
 #include "api.h"
 #include "state.h"
 
+#define MIN_TIME 1000 / 30
+unsigned long last_time;
+
 void startup() {
     Serial.begin(9600);
 
     for(int i = 0; i < TOTAL_PIXELS; i++) {
-        //setPixelOverall(i, 127, 120, 85);
-        setPixelLtR(i, 255, 255, 255);
+        setPixelColorLtR(i, 255, 214, 170);
         showStrips();
         delay(10);
     }
@@ -32,43 +34,41 @@ void setup() {
         0
     );
 
+    // Initialize program list
+
     startup();
+
+    last_time = millis();
 }
 
-#define TIME 500
-
-void prog1() {
-    setAll(255, 0, 0);
-    showStrips();
-    delay(TIME);
-    setAll(0, 255, 0);
-    showStrips();
-    delay(TIME);
-    setAll(0, 0, 255);
-    showStrips();
-    delay(TIME);
-    setAll(255, 255, 0);
-    showStrips();
-    delay(TIME);
-}
-
-void prog2() {
-    setAll(255, 0, 255);
-    showStrips();
-    delay(50);
-    setAll(0, 255, 255);
-    showStrips();
-    delay(50);
-}
+int pos = 0;
+int framecount = 0;
 
 void loop() {
-    switch(active_program) {
-        case 1:
-            prog1();
-            break;
-        case 2:
-            prog2();
-            break;
+    // Apply color
+    setAllColor(255, 214, 170);
+
+    // Apply brightness program
+    if (active_effect == 1) {
+        if (framecount == 30) {
+            setAllBrightness(0.3);
+            setPixelBrightnessLtR(pos, 1);
+            framecount = 0;
+            pos++;
+            pos = pos % 120;
+        } else {
+            framecount++;
+        }
+    } else {
+        setAllBrightness(1);
     }
-    delay(100);
+
+    showStrips();
+
+    long sleeptime = MIN_TIME - (millis() - last_time);
+    if (sleeptime > 0) {
+        delay(sleeptime);
+    } else {
+        late_frames++;
+    }
 }

@@ -4,7 +4,8 @@
 #define EEPROM_SSID 0
 #define EEPROM_PASS 32
 #define EEPROM_PRGM 64
-#define EEPROM_BRIGHT 68
+#define EEPROM_EFFECT 68
+#define EEPROM_BRIGHT 72
 
 #ifndef EEPROM_FUNC_H
 #define EEPROM_FUNC_H

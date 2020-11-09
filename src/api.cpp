@@ -177,6 +177,7 @@ void handle_extra() {
 void handleGetState(AsyncWebServerRequest *request) {
     String output = "{";
     output += "\"program\": " + String(read_program()) + ",";
+    output += "\"effect\": " + String(read_effect()) + ",";
     output += "\"brightness\": " + String(read_brightness());
     output += "}";
 
@@ -186,6 +187,9 @@ void handleGetState(AsyncWebServerRequest *request) {
 void handleSetState(AsyncWebServerRequest *request) {
     if (request->hasParam("program", true)) {
         set_program(request->getParam("program", true)->value().toInt());
+    }
+    if (request->hasParam("effect", true)) {
+        set_effect(request->getParam("effect", true)->value().toInt());
     }
     if (request->hasParam("brightness", true)) {
         set_brightness(request->getParam("brightness", true)->value().toFloat());
