@@ -38,5 +38,6 @@ void handleGetState(AsyncWebServerRequest *request);
 void handleSetState(AsyncWebServerRequest *request);
 void handleRestart(AsyncWebServerRequest *request);
 void handleOTA(AsyncWebServerRequest *request);
+void handleGetDebug(AsyncWebServerRequest *request);
 
 #endif

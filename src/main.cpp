@@ -66,6 +66,7 @@ void loop() {
     showStrips();
 
     long sleeptime = MIN_TIME - (millis() - last_time);
+    last_time = millis();
     if (sleeptime > 0) {
         delay(sleeptime);
     } else {

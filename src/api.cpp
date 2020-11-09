@@ -84,6 +84,7 @@ void init_webserver() {
     server.on("/api/state", HTTP_GET, handleGetState);
     server.on("/api/state", HTTP_PUT, handleSetState);
     server.on("/api/ota", HTTP_PUT, handleOTA);
+    server.on("/api/debug", HTTP_GET, handleGetDebug);
 
     // FS Browser
     server.on("/list", HTTP_GET, handleFileList);
@@ -240,6 +241,14 @@ void handleNetworkConfig(AsyncWebServerRequest *request) {
     }
 
     request->send(200);
+}
+
+void handleGetDebug(AsyncWebServerRequest *request) {
+    String output = "{";
+    output += "\"missed_frames\": " + String(late_frames);
+    output += "}";
+
+    request->send(200, "application/json", output);
 }
 
 void handleRestart(AsyncWebServerRequest *request) {
