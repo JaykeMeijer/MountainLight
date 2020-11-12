@@ -22,9 +22,7 @@
         </p>
         <p>
             Effects:
-            <button onclick="setEffect(0)">None</button>
-            <button onclick="setEffect(1)">Single pixel scanner</button>
-            <button onclick="setEffect(2)">Multi pixel scanner</button>
+            <span id="effects"></span>
         </p>
         <p>
             <label for="effect_speed">Effect speed:</label>
@@ -36,7 +34,7 @@
 
         <a href="/config">Config</a>
     </body>
-    
+
     <script>
         function onLoad() {
             getState(function(state) {
@@ -46,6 +44,19 @@
                 document.getElementById("effect_speed").value = state.effect_speed;
                 document.getElementById("effect_speed_text").innerHTML = state.effect_speed + '%';
             });
+
+            getOptions(function(options) {
+                console.log(options);
+                var html = "";
+                var effects = options.effects;
+                for (var key in effects) {
+                    if (effects.hasOwnProperty(key)) {           
+                        html += '<button onclick="setEffect(' + key + ')">' + effects[key] + '</button>';
+                    }
+                }
+                  
+                document.getElementById("effects").innerHTML = html;
+            });
         }
 
         function changeBrightness() {
@@ -53,7 +64,7 @@
             setBrightness(brightness);
             document.getElementById("brightness_text").innerHTML = Math.round(brightness * 100) + '%';
         }
-        
+
         function changeEffectSpeed() {
             var speed = document.getElementById("effect_speed").value;
             setEffectSpeed(speed);
@@ -67,6 +78,16 @@
                     callback(JSON.parse(xhttp.responseText));
             }
             xhttp.open("GET", "/api/state", true);
+            xhttp.send(null);
+        }
+
+        function getOptions(callback) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (xhttp.readyState == 4 && xhttp.status == 200)
+                    callback(JSON.parse(xhttp.responseText));
+            }
+            xhttp.open("GET", "/api/options", true);
             xhttp.send(null);
         }
 
