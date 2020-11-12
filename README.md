@@ -28,15 +28,21 @@ mDNS is on, the device is known as `mountainlight.local`.
 
 The following API calls are currently supported:
 
+- `GET /api/network`: Get current network configuration as well as
+                      available networks.
 - `PUT /api/network`: Set network configuration. Supports form parameters
                       `ssid` and `pass`
+- `GET /api/state`: Get the current state: active programs etc.
 - `PUT /api/state`: Set desired program, color and effect. Currently
-                    supports form parameters `program` (int) and
-                    `brightness` (float).
+                    supports form parameters `program` (int), `effect`
+                    (int) and `brightness` (float).
 - `PUT /api/ota`: Start or stop OTA support. Supports form parameter
                   `command` (str). Supported commands are `start` and
                   `stop`.
 - `POST /api/restart`: Reboot device
+- `GET /api/debug`: Get debug information. Currently only returns
+                    number of 'missed' frames, the frames that could not
+                    be processed in time.
 
 # TODO
 
