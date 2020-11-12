@@ -81,6 +81,7 @@ void init_webserver() {
     server.on("/api/network", HTTP_GET, handleGetNetworkConfig);
     server.on("/api/network", HTTP_PUT, handleNetworkConfig);
     server.on("/api/restart", HTTP_POST, handleRestart);
+    server.on("/api/options", HTTP_GET, handleGetOptions);
     server.on("/api/state", HTTP_GET, handleGetState);
     server.on("/api/state", HTTP_PUT, handleSetState);
     server.on("/api/ota", HTTP_PUT, handleOTA);
@@ -175,11 +176,31 @@ void handle_extra() {
     delay(50);
 }
 
+void handleGetOptions(AsyncWebServerRequest *request) {
+    String output = "{";
+
+    // TODO: Include programs & colors
+
+    output += "\"effects\": {";
+    output += "\"0\": \"None\",";
+    for (int i = 0; i < NR_EFFECTS; i++) {
+        output += "\"" + String(i + 1) + "\": \"" + effects[i]->name + "\"";
+        if (i < NR_EFFECTS - 1) {
+            output += ",";
+        }
+    }
+    output += "}";
+    output += "}";
+
+    request->send(200, "application/json", output);
+}
+
 void handleGetState(AsyncWebServerRequest *request) {
     String output = "{";
     output += "\"program\": " + String(read_program()) + ",";
     output += "\"effect\": " + String(read_effect()) + ",";
-    output += "\"brightness\": " + String(read_brightness());
+    output += "\"brightness\": " + String(read_brightness()) + ",";
+    output += "\"effect_speed\": " + String(read_effect_speed());
     output += "}";
 
     request->send(200, "application/json", output);
@@ -194,6 +215,9 @@ void handleSetState(AsyncWebServerRequest *request) {
     }
     if (request->hasParam("brightness", true)) {
         set_brightness(request->getParam("brightness", true)->value().toFloat());
+    }
+    if (request->hasParam("effect_speed", true)) {
+        set_effect_speed(request->getParam("effect_speed", true)->value().toInt());
     }
     request->send(200);
 }

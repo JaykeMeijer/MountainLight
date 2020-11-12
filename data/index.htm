@@ -7,7 +7,7 @@
 
     <body onload="onLoad()">
         <h1>Welcome to MountainLight</h1>
-        
+
         <p>
             <label for="brightness">Brightness:</label>
             <input type="range" id="brightness" name="brightness"
@@ -20,7 +20,20 @@
             <button onclick="setProgram(1)">Program 1</button>
             <button onclick="setProgram(2)">Program 2</button>
         </p>
-        
+        <p>
+            Effects:
+            <button onclick="setEffect(0)">None</button>
+            <button onclick="setEffect(1)">Single pixel scanner</button>
+            <button onclick="setEffect(2)">Multi pixel scanner</button>
+        </p>
+        <p>
+            <label for="effect_speed">Effect speed:</label>
+            <input type="range" id="effect_speed" name="effect_speed"
+                min="1" max="100" step="1"
+                onchange="changeEffectSpeed()">
+            <span id="effect_speed_text"></span>
+        </p>
+
         <a href="/config">Config</a>
     </body>
     
@@ -30,13 +43,21 @@
                 console.log(state);
                 document.getElementById("brightness").value = state.brightness;
                 document.getElementById("brightness_text").innerHTML = Math.round(state.brightness * 100) + '%';
+                document.getElementById("effect_speed").value = state.effect_speed;
+                document.getElementById("effect_speed_text").innerHTML = state.effect_speed + '%';
             });
         }
 
         function changeBrightness() {
-            brightness = document.getElementById("brightness").value;
+            var brightness = document.getElementById("brightness").value;
             setBrightness(brightness);
             document.getElementById("brightness_text").innerHTML = Math.round(brightness * 100) + '%';
+        }
+        
+        function changeEffectSpeed() {
+            var speed = document.getElementById("effect_speed").value;
+            setEffectSpeed(speed);
+            document.getElementById("effect_speed_text").innerHTML = speed + '%';
         }
 
         function getState(callback) {
@@ -56,11 +77,25 @@
             xhttp.send("program=" + i);
         }
 
+        function setEffect(i) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/state", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("effect=" + i);
+        }
+
         function setBrightness(i) {
             var xhttp = new XMLHttpRequest();
             xhttp.open("PUT", "/api/state", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("brightness=" + i);
+        }
+        
+        function setEffectSpeed(i) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/state", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("effect_speed=" + i);
         }
 
     </script>

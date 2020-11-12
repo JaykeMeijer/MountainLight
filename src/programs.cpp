@@ -1,16 +1,29 @@
 #include "programs.h"
 
+Program **effects;
+
+void loadPrograms() {
+  effects = (Program**)malloc(sizeof(Program*) * NR_EFFECTS);
+  effects[0] = new SinglePixelBackForth();
+  effects[1] = new MultiPixelBackForth();
+
+  /* Init effects */
+  for (int i = 0; i < NR_EFFECTS; i++) {
+    effects[i]->init();
+  }
+}
+
 
 void Program::init() {
   // To be overriden
   name = "Default";
 }
 
-void Program::step(uint8_t r, uint8_t g, uint8_t b, int speed) {
+void Program::frame(int speed) {
   // To be overriden
 }
 
-void Program::step_back(uint8_t r, uint8_t g, uint8_t b, int speed) {
+void Program::frame_back(int speed) {
   // To be overriden
 }
 
@@ -22,6 +35,70 @@ bool Program::load() {
 bool Program::unload() {
   // To be overriden
   return true;
+}
+
+void SinglePixelBackForth::init() {
+  name = "Single Pixel Echo";
+  current = 0;
+  framecount = 0;
+  direction = 1;
+}
+
+void SinglePixelBackForth::frame(int speed) {
+  if (framecount > (200 / speed)) {
+    if (current == 119) {
+      direction = -1;
+    } else if (current == 0) {
+      direction = 1;
+    }
+    current += direction;
+    setAllBrightness(0.3);
+    setPixelBrightnessLtR(current, 1);
+    framecount = 0;
+  } else {
+    framecount++;
+  }
+}
+
+void SinglePixelBackForth::frame_back(int speed) {
+  frame(speed);
+}
+
+
+void MultiPixelBackForth::init() {
+  name = "Multi Pixel Echo";
+  current = 0;
+  framecount = 0;
+  direction = 1;
+  gap = 0.7 / 15;
+}
+
+void MultiPixelBackForth::frame(int speed) {
+  if (framecount > (200 / speed)) {
+    if (current == TOTAL_PIXELS_MIN_1) {
+      direction = -1;
+    } else if (current == 0) {
+      direction = 1;
+    }
+    current += direction;
+    setAllBrightness(0.3);
+    int rangelim = max(0, current - 15);
+    for (int i = rangelim; i < current; i++) {
+      setPixelBrightnessLtR(i, 0.3 + (15 - (current - i)) * gap);
+    }
+    setPixelBrightnessLtR(current, 1);
+    rangelim = min(TOTAL_PIXELS, current + 15);
+    for (int i = current + 1; i < rangelim; i++) {
+      setPixelBrightnessLtR(i, 0.3 + (15 - (i - current)) * gap);
+    }
+    framecount = 0;
+  } else {
+    framecount++;
+  }
+}
+
+void MultiPixelBackForth::frame_back(int speed) {
+  frame(speed);
 }
 
 

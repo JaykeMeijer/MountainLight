@@ -9,6 +9,7 @@
 /* CONFIGURATION        */
 /* ==================== */
 #define TOTAL_PIXELS 120
+#define TOTAL_PIXELS_MIN_1 119
 #define STRANDS 2
 #define POR1 27
 #define POR2 26

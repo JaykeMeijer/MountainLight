@@ -32,10 +32,11 @@ The following API calls are currently supported:
                       available networks.
 - `PUT /api/network`: Set network configuration. Supports form parameters
                       `ssid` and `pass`
+- `GET /api/options`: Get the available programs, colors and effects
 - `GET /api/state`: Get the current state: active programs etc.
 - `PUT /api/state`: Set desired program, color and effect. Currently
                     supports form parameters `program` (int), `effect`
-                    (int) and `brightness` (float).
+                    (int), `brightness` (float) and `speed` (int).
 - `PUT /api/ota`: Start or stop OTA support. Supports form parameter
                   `command` (str). Supported commands are `start` and
                   `stop`.
@@ -50,19 +51,35 @@ The following API calls are currently supported:
 - Create and add HTML pages:
   - home (program, color, effect selection)
 - Create and add API functionality:
-  - Get available programs, colors, effects
-  - Set colors, effects
+  - Get available programs, colors, ~effects~
+  - Set colors, ~effects~
 - Add captive portal in WiFi mode:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
     NOTE: Currently build but sadly it's crashing the ESP, watchdog is triggered.
+- Performance enhancements - currently missing quite some frames
 
 ## Programs and functionality
 
 - Create support for following functions
-    - Colorless programs (all LEDs on, certain LEDs on)
-    - Static color programs (green/white idea)
-    - Dynamic color programs (moving rainbow concepts)
-    - Color effects: Apply color to colorless programs: static color, slowly changing color, etc
-    - Brightness effects: Apply dynamice brightness effects to colorless & static color programs: pulse, slow left-right etc.
+    - Programs
+    - Colors
 - Create custom programs through web interface
+
+## Specific programs to add
+
+- Programs:
+  - None / static
+  - Mountain
+  - ?
+- Color:
+  - Static / RGB value
+  - Static Rainbow
+  - Moving Rainbow
+  - Primary color loop
+  - Secondary color loop
+  - ?
+- Brightness Effects:
+  - Pulse
+  - Heartbeat
+  - ?

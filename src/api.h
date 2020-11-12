@@ -7,6 +7,7 @@
 #include "state.h"
 #include "eeprom_func.h"
 #include "filesystem.h"
+#include "programs.h"
 
 #ifndef API_H
 #define API_H
@@ -34,6 +35,7 @@ void handle_extra();
 void handleNotFound(AsyncWebServerRequest *request);
 void handleGetNetworkConfig(AsyncWebServerRequest *request);
 void handleNetworkConfig(AsyncWebServerRequest *request);
+void handleGetOptions(AsyncWebServerRequest *request);
 void handleGetState(AsyncWebServerRequest *request);
 void handleSetState(AsyncWebServerRequest *request);
 void handleRestart(AsyncWebServerRequest *request);

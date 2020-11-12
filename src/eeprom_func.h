@@ -6,6 +6,7 @@
 #define EEPROM_PRGM 64
 #define EEPROM_EFFECT 68
 #define EEPROM_BRIGHT 72
+#define EEPROM_EFFECT_SPEED 76
 
 #ifndef EEPROM_FUNC_H
 #define EEPROM_FUNC_H

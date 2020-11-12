@@ -2,6 +2,7 @@
 #include "strands.h"
 #include "api.h"
 #include "state.h"
+#include "programs.h"
 
 #define MIN_TIME 1000 / 30
 unsigned long last_time;
@@ -35,6 +36,7 @@ void setup() {
     );
 
     // Initialize program list
+    loadPrograms();
 
     startup();
 
@@ -46,21 +48,13 @@ int framecount = 0;
 
 void loop() {
     // Apply color
-    setAllColor(255, 214, 170);
+    setAllColor(255, 197, 143);
 
     // Apply brightness program
-    if (active_effect == 1) {
-        if (framecount == 30) {
-            setAllBrightness(0.3);
-            setPixelBrightnessLtR(pos, 1);
-            framecount = 0;
-            pos++;
-            pos = pos % 120;
-        } else {
-            framecount++;
-        }
-    } else {
+    if (active_effect == 0) {
         setAllBrightness(1);
+    } else {
+        effects[active_effect - 1]->frame(effect_speed);
     }
 
     showStrips();
