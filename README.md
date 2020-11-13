@@ -36,7 +36,10 @@ The following API calls are currently supported:
 - `GET /api/state`: Get the current state: active programs etc.
 - `PUT /api/state`: Set desired program, color and effect. Currently
                     supports form parameters `program` (int), `effect`
-                    (int), `brightness` (float) and `speed` (int).
+                    (int), `brightness` (float), `effect_speed` (int),
+                    `color_mode` (int), `color_speed` (int) and `color_<r/g/b>`
+                    (int). Note that for a new color to be set, all three
+                    components need to be provided.
 - `PUT /api/ota`: Start or stop OTA support. Supports form parameter
                   `command` (str). Supported commands are `start` and
                   `stop`.
@@ -48,11 +51,8 @@ The following API calls are currently supported:
 # TODO
 
 ## System
-- Create and add HTML pages:
-  - home (program, color, effect selection)
 - Create and add API functionality:
-  - Get available programs, colors, ~effects~
-  - Set colors, ~effects~
+  - Get available programs (hardcoded - frame based programs?)
 - Add captive portal in WiFi mode:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
@@ -62,24 +62,14 @@ The following API calls are currently supported:
 ## Programs and functionality
 
 - Create support for following functions
-    - Programs
-    - Colors
+    - Custom Programs
 - Create custom programs through web interface
 
 ## Specific programs to add
 
-- Programs:
-  - None / static
-  - Mountain
-  - ?
 - Color:
-  - Static / RGB value
-  - Static Rainbow
-  - Moving Rainbow
   - Primary color loop
   - Secondary color loop
   - ?
 - Brightness Effects:
-  - Pulse
-  - Heartbeat
   - ?

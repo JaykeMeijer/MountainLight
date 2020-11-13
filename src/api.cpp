@@ -179,7 +179,16 @@ void handle_extra() {
 void handleGetOptions(AsyncWebServerRequest *request) {
     String output = "{";
 
-    // TODO: Include programs & colors
+    // TODO: Include programs
+    output += "\"colors\": {";
+    output += "\"0\": \"None\",";
+    for (int i = 0; i < NR_COLORS; i++) {
+        output += "\"" + String(i + 1) + "\": \"" + colors[i]->name + "\"";
+        if (i < NR_COLORS - 1) {
+            output += ",";
+        }
+    }
+    output += "},";
 
     output += "\"effects\": {";
     output += "\"0\": \"None\",";
@@ -190,17 +199,26 @@ void handleGetOptions(AsyncWebServerRequest *request) {
         }
     }
     output += "}";
+
     output += "}";
 
     request->send(200, "application/json", output);
 }
 
 void handleGetState(AsyncWebServerRequest *request) {
+    CRGB col = read_color();
     String output = "{";
     output += "\"program\": " + String(read_program()) + ",";
     output += "\"effect\": " + String(read_effect()) + ",";
+    output += "\"color_mode\": " + String(read_color_mode()) + ",";
+    output += "\"color\": {";
+    output += "\"r\":" + String(col.r) + ",";
+    output += "\"g\":" + String(col.g) + ",";
+    output += "\"b\":" + String(col.b);
+    output += "},";
     output += "\"brightness\": " + String(read_brightness()) + ",";
-    output += "\"effect_speed\": " + String(read_effect_speed());
+    output += "\"effect_speed\": " + String(read_effect_speed()) + ",";
+    output += "\"color_speed\": " + String(read_color_speed());
     output += "}";
 
     request->send(200, "application/json", output);
@@ -218,6 +236,21 @@ void handleSetState(AsyncWebServerRequest *request) {
     }
     if (request->hasParam("effect_speed", true)) {
         set_effect_speed(request->getParam("effect_speed", true)->value().toInt());
+    }
+    if (request->hasParam("color_mode", true)) {
+        set_color_mode(request->getParam("color_mode", true)->value().toInt());
+    }
+    if (request->hasParam("color_r", true)
+            && request->hasParam("color_g", true)
+            && request->hasParam("color_b", true)) {
+        set_color(CRGB(
+            request->getParam("color_r", true)->value().toInt(),
+            request->getParam("color_g", true)->value().toInt(),
+            request->getParam("color_b", true)->value().toInt()
+        ));
+    }
+    if (request->hasParam("color_speed", true)) {
+        set_color_speed(request->getParam("color_speed", true)->value().toInt());
     }
     request->send(200);
 }

@@ -23,6 +23,15 @@ void eeprom_writeInt(int address, int input) {
     EEPROM.commit();
 }
 
+uint8_t eeprom_readByte(int address) {
+    return EEPROM.readByte(address);
+}
+
+void eeprom_writeByte(int address, uint8_t input) {
+    EEPROM.writeByte(address, input);
+    EEPROM.commit();
+}
+
 float eeprom_readFloat(int address) {
     return EEPROM.readFloat(address);
 }

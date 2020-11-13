@@ -1,11 +1,24 @@
 #include "programs.h"
 
+Program **colors;
 Program **effects;
 
 void loadPrograms() {
+  colors = (Program**)malloc(sizeof(Program*) * NR_COLORS);
+  colors[0] = new StaticRainbow();
+  colors[1] = new MovingRainbow();
+  colors[2] = new Mountain();
+
   effects = (Program**)malloc(sizeof(Program*) * NR_EFFECTS);
   effects[0] = new SinglePixelBackForth();
   effects[1] = new MultiPixelBackForth();
+  effects[2] = new Pulse();
+  effects[3] = new Heartbeat();
+
+  /* Init colors */
+  for (int i = 0; i < NR_COLORS; i++) {
+    colors[i]->init();
+  }
 
   /* Init effects */
   for (int i = 0; i < NR_EFFECTS; i++) {
@@ -13,17 +26,12 @@ void loadPrograms() {
   }
 }
 
-
 void Program::init() {
   // To be overriden
   name = "Default";
 }
 
 void Program::frame(int speed) {
-  // To be overriden
-}
-
-void Program::frame_back(int speed) {
   // To be overriden
 }
 
@@ -37,10 +45,82 @@ bool Program::unload() {
   return true;
 }
 
+void StaticRainbow::init() {
+  name = "Static Rainbow";
+  framecount = 1000;
+  r = 255;
+  g = 0;
+  b = 0;
+}
+
+void StaticRainbow::frame(int speed) {
+  if (framecount > (100 / speed)) {
+    recalcRainbow(&r, &g, &b, 2);
+    setAllColor(r, g, b);
+    framecount = 0;
+  } else {
+    framecount++;
+  }
+}
+
+void MovingRainbow::init() {
+  name = "Moving Rainbow";
+  framecount = 1000;
+  r = 255;
+  g = 0;
+  b = 0;
+}
+
+void MovingRainbow::frame(int speed) {
+  if (framecount > (100 / speed)) {
+    uint8_t l_r = r;
+    uint8_t l_g = g;
+    uint8_t l_b = b;
+    for (int i = TOTAL_PIXELS - 1; i >= 0; i--) {
+      setPixelColorLtR(i, l_r, l_g, l_b);
+      recalcRainbow(&l_r, &l_g, &l_b, 5);
+    }
+    recalcRainbow(&r, &g, &b, 5);
+    framecount = 0;
+  } else {
+    framecount++;
+  }
+}
+
+void Mountain::init() {
+  name = "Mountain";
+  g = CRGB(0, 64, 0);
+  w = CRGB(255, 255, 255);
+}
+
+void Mountain::frame(int speed) {
+  for (int i = 0; i < 20; i++) {
+    setPixelColorLtR(i, g);
+  }
+  for (int i = 20; i < 32; i++) {
+    setPixelColorLtR(i, w);
+  }
+  for (int i = 32; i < 45; i++) {
+    setPixelColorLtR(i, g);
+  }
+  for (int i = 45; i < 48; i++) {
+    setPixelColorLtR(i, w);
+  }
+  for (int i = 49; i < 60; i++) {
+    setPixelColorLtR(i, g);
+  }
+  for (int i = 60; i < 87; i++) {
+    setPixelColorLtR(i, w);
+  }
+  for (int i = 87; i < 120; i++) {
+    setPixelColorLtR(i, g);
+  }
+}
+
 void SinglePixelBackForth::init() {
   name = "Single Pixel Echo";
   current = 0;
-  framecount = 0;
+  framecount = 1000;
   direction = 1;
 }
 
@@ -60,17 +140,12 @@ void SinglePixelBackForth::frame(int speed) {
   }
 }
 
-void SinglePixelBackForth::frame_back(int speed) {
-  frame(speed);
-}
-
-
 void MultiPixelBackForth::init() {
   name = "Multi Pixel Echo";
   current = 0;
-  framecount = 0;
+  framecount = 1000;
   direction = 1;
-  gap = 0.7 / 15;
+  gap = 0.8 / 15;
 }
 
 void MultiPixelBackForth::frame(int speed) {
@@ -81,15 +156,15 @@ void MultiPixelBackForth::frame(int speed) {
       direction = 1;
     }
     current += direction;
-    setAllBrightness(0.3);
+    setAllBrightness(0.2);
     int rangelim = max(0, current - 15);
     for (int i = rangelim; i < current; i++) {
-      setPixelBrightnessLtR(i, 0.3 + (15 - (current - i)) * gap);
+      setPixelBrightnessLtR(i, 0.2 + (15 - (current - i)) * gap);
     }
     setPixelBrightnessLtR(current, 1);
     rangelim = min(TOTAL_PIXELS, current + 15);
     for (int i = current + 1; i < rangelim; i++) {
-      setPixelBrightnessLtR(i, 0.3 + (15 - (i - current)) * gap);
+      setPixelBrightnessLtR(i, 0.2 + (15 - (i - current)) * gap);
     }
     framecount = 0;
   } else {
@@ -97,8 +172,60 @@ void MultiPixelBackForth::frame(int speed) {
   }
 }
 
-void MultiPixelBackForth::frame_back(int speed) {
-  frame(speed);
+void Pulse::init() {
+  name = "Pulse";
+  current = 0;
+  framecount = 1000;
+  direction = 1;
+}
+
+void Pulse::frame(int speed) {
+  if (framecount > (100 / speed)) {
+    if (current >= 255) {
+      direction = -1;
+      current = 255;
+    } else if (current <= 0) {
+      direction = 1;
+      current = 0;
+    }
+    setAllBrightness(current / 255.0);
+    current += direction;
+    framecount = 0;
+  } else {
+    framecount++;
+  }
+}
+
+void Heartbeat::init() {
+  name = "Heartbeat";
+  current = 120;
+  framecount = 1000;
+  direction = 8;
+  gap = false;
+  wave = 0;
+}
+
+void Heartbeat::frame(int speed) {
+  if ((!gap && framecount) || framecount > (4000 / speed)) {
+    gap = false;
+    if (current >= 255) {
+      direction = -10;
+      current = 255;
+    } else if (current <= 80 ) {
+      direction = 10;
+      current = 80;
+      wave++;
+      if (wave == 2) {
+        gap = true;
+        wave = 0;
+      }
+    }
+    setAllBrightness(current / 255.0);
+    current += direction;
+    framecount = 0;
+  } else {
+    framecount++;
+  }
 }
 
 

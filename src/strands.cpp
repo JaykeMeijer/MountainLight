@@ -36,6 +36,11 @@ void setAllColor(uint8_t r, uint8_t g, uint8_t b) {
   setStripColor(c2, LEN2, r, g, b);
 }
 
+void setAllColor(CRGB color) {
+  setStripColor(c1, LEN1, color);
+  setStripColor(c2, LEN2, color);
+}
+
 void setAllBrightness(float brightness) {
   setStripBrightness(b1, LEN1, brightness);
   setStripBrightness(b2, LEN2, brightness);
@@ -44,6 +49,10 @@ void setAllBrightness(float brightness) {
 /* Set an entire strip with one color */
 void setStripColor(CRGB *c, int len, uint8_t r, uint8_t g, uint8_t b) {
   fill_solid(&(c[0]), len, CRGB(r, g, b));
+}
+
+void setStripColor(CRGB *c, int len, CRGB color) {
+  fill_solid(&(c[0]), len, color);
 }
 
 void setStripBrightness(float *b, int len, float brightness) {
@@ -57,12 +66,24 @@ void setPixelColor(CRGB *c, int pixel, uint8_t r, uint8_t g, uint8_t b) {
   c[pixel].setRGB(r, g, b);
 }
 
+void setPixelColor(CRGB *c, int pixel, CRGB color) {
+  c[pixel] = color;
+}
+
 /* Set a pixel, indexed from left-to-right */
 void setPixelColorLtR(int pixel, uint8_t r, uint8_t g, uint8_t b) {
   if (pixel < 75) {
     c1[LEN1 - 1 - pixel].setRGB(r, g, b);
   } else {
     c2[pixel - LEN1].setRGB(r, g, b);
+  }
+}
+
+void setPixelColorLtR(int pixel, CRGB color) {
+  if (pixel < 75) {
+    c1[LEN1 - 1 - pixel] = color;
+  } else {
+    c2[pixel - LEN1] = color;
   }
 }
 

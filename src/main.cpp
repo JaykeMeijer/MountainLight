@@ -48,7 +48,11 @@ int framecount = 0;
 
 void loop() {
     // Apply color
-    setAllColor(255, 197, 143);
+    if (active_color_mode == 0) {
+        setAllColor(active_color);
+    } else {
+        colors[active_color_mode - 1]->frame(color_speed);
+    }
 
     // Apply brightness program
     if (active_effect == 0) {
