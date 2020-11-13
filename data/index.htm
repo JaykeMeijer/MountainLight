@@ -25,7 +25,7 @@
             Color: <input type="color" id="color" name="color" onchange="changeColor()">
         </p>
         <p>
-            <label for="colo_speed">Color speed:</label>
+            <label for="color_speed">Color speed:</label>
             <input type="range" id="color_speed" name="color_speed"
                 min="1" max="100" step="1"
                 onchange="changeColorSpeed()">
@@ -63,7 +63,17 @@
             getOptions(function(options) {
                 console.log(options);
                 var html = "";
+
+                var colors = options.colors;
+                for (var key in colors) {
+                    if (colors.hasOwnProperty(key)) {           
+                        html += '<button onclick="setColorMode(' + key + ')">' + colors[key] + '</button>';
+                    }
+                }
+                document.getElementById("color_mode").innerHTML = html;
+
                 var effects = options.effects;
+                html = "";
                 for (var key in effects) {
                     if (effects.hasOwnProperty(key)) {           
                         html += '<button onclick="setEffect(' + key + ')">' + effects[key] + '</button>';
@@ -83,7 +93,7 @@
         function changeColorSpeed() {
             var speed = document.getElementById("color_speed").value;
             setColorSpeed(speed);
-            document.getElementById("color_speed_text").innerHTML = color + '%';
+            document.getElementById("color_speed_text").innerHTML = speed + '%';
         }
 
         function changeColor() {
@@ -138,7 +148,14 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("effect=" + i);
         }
-        
+
+        function setColorMode(i) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("PUT", "/api/state", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("color_mode=" + i);
+        }
+
         function setColor(r, g, b) {
             var xhttp = new XMLHttpRequest();
             xhttp.open("PUT", "/api/state", true);
