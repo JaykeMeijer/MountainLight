@@ -176,16 +176,16 @@ void Pulse::init() {
   name = "Pulse";
   current = 0;
   framecount = 1000;
-  direction = 1;
+  direction = 5;
 }
 
 void Pulse::frame(int speed) {
   if (framecount > (100 / speed)) {
     if (current >= 255) {
-      direction = -1;
+      direction = -5;
       current = 255;
     } else if (current <= 0) {
-      direction = 1;
+      direction = 5;
       current = 0;
     }
     setAllBrightness(current / 255.0);

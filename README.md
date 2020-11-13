@@ -51,6 +51,8 @@ The following API calls are currently supported:
 # TODO
 
 ## System
+
+- Homepage: Indicate active program, effect.
 - Create and add API functionality:
   - Get available programs (hardcoded - frame based programs?)
 - Add captive portal in WiFi mode:

@@ -306,6 +306,7 @@ void handleGetDebug(AsyncWebServerRequest *request) {
     output += "}";
 
     request->send(200, "application/json", output);
+    late_frames = 0;
 }
 
 void handleRestart(AsyncWebServerRequest *request) {
