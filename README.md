@@ -59,7 +59,7 @@ The following API calls are currently supported:
     - https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp
     - https://github.com/esp8266/Arduino/blob/master/libraries/DNSServer/examples/CaptivePortalAdvanced/CaptivePortalAdvanced.ino
     NOTE: Currently build but sadly it's crashing the ESP, watchdog is triggered.
-- Performance enhancements - currently missing quite some frames
+- ~~Performance enhancements - currently missing quite some frames~~ -> Not actually the case anymore, only when performing excessive API actions
 
 ## Programs and functionality
 
